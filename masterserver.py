@@ -4,7 +4,7 @@ import datetime
 import time
 import traceback
 
-SERVERS = [{"ip": "163.158.182.243", "port": 19711, "last":datetime.datetime.now()}, {"ip": "206.55.174.10", "port": 19711, "last": datetime.datetime.now()}]
+SERVERS = [{"ip": "163.158.182.243", "port": 19711, "last":datetime.datetime.now()}, {"ip": "73.181.147.35", "port": 19711, "last": datetime.datetime.now()}]
 
 def main():
     listen_ip = "0.0.0.0"
@@ -42,9 +42,7 @@ def queryloop(querysock):
             b += SERVERS[i]["ip"].encode("ascii")
             b += b'\xac'
             b += str(SERVERS[i]["port"]).encode("ascii")
-            if not i == len(SERVERS) - 1:
-                b += b'\xac'
-        b += b'\x00'
+            b += b'\x00'
         print("Sending back", b)
         clientsocket.send(b)
 
