@@ -45,6 +45,7 @@ def queryloop(querysock):
             b += b'\x00'
         print("Sending back", b)
         clientsocket.send(b)
+        clientsocket.close()
 
 def registerloop(registersock):
     while True:
