@@ -45,34 +45,27 @@ def queryloop(querysock):
             b += b'\x00'
         print("Sending back", b)
         clientsocket.send(b)
-        clientsocket.close()
 
 def registerloop(registersock):
     while True:
         data, (ip, port) = registersock.recvfrom(1024)
-        print("New register", data)
-        print(ip, port)
         try:
-            if data[0] == 49:
-                gameport = data[1:].decode("ascii")
-                print("Gameport %s" % gameport)
-                if int(gameport):
-                    tempsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    tempsocket.settimeout(5)
-                    tempsocket.sendto("\\status\\".encode("ascii"), (ip, port))
-                    tempsocket.recvfrom(1024)
-                    server = next((x for x in SERVERS if x["ip"] == ip and x["port"] == gameport), None)
-                    if not server:
-                        SERVERS.append({"ip": ip, "port": gameport, "last": datetime.datetime.now()})
-                        print("New server: %s:%s" % (ip, gameport))
-                    else:
-                        server["last"] = datetime.datetime.now()
-                        print("Keepalive from: %s:%s" % (ip, gameport))
-                    tempsocket.close()
+            gameport = data[1:].decode("ascii")
+            if int(gameport):
+                tempsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                tempsocket.settimeout(5)
+                tempsocket.sendto("\\status\\".encode("ascii"), (ip, port))
+                tempsocket.recvfrom(1024)
+                server = next((x for x in SERVERS if x["ip"] == ip and x["port"] == gameport), None)
+                if not server:
+                    SERVERS.append({"ip": ip, "port": gameport, "last": datetime.datetime.now()})
+                    print("New server: %s:%s" % (ip, gameport))
                 else:
-                    print("Fuck it, wasn't int: ", gameport)
+                    server["last"] = datetime.datetime.now()
+                    print("Keepalive from: %s:%s" % (ip, gameport))
+                tempsocket.close()
             else:
-                print('data[0]: ', data[0])
+                print("Fuck it, wasn't int: ", data)
         except Exception as e:
             print("Exception")
             traceback.print_exc()
@@ -82,7 +75,7 @@ def cleanloop():
         now = datetime.datetime.now()
         for server in SERVERS:
             if now > server["last"] + datetime.timedelta(minutes=2):
-                if server["ip"] == "163.158.182.243" or server["ip"] == "206.55.174.10":
+                if server["ip"] == "163.158.182.243" or server["ip"] == "73.181.147.35":
                     # do not remove usual dedicated servers
                     continue
                 print("Deleting %s:%s" % (server["ip"], server["port"]))
